@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class VehicleServiceIMPL implements VehicleService {
     private final GlobalMapper globalMapper;
 
     @Override
-    @Cacheable(value = "vehicle", key = "#vehicleDTO.vehicleId")
+    @CacheEvict(value = "vehicles", allEntries = true)
     public VehicleDTO saveVehicle(VehicleDTO vehicleDTO) {
         log.info("Saving vehicle: {}", vehicleDTO);
         return globalMapper.vehicleEntityToVehicleDTO(vehicleRepository.save(globalMapper.vehicleDTOtoVehicleEntity(vehicleDTO)));
@@ -41,7 +42,7 @@ public class VehicleServiceIMPL implements VehicleService {
     }
 
     @Override
-    @Cacheable(value = "vehicle", key = "#vehicleDTO.vehicleId")
+    @CacheEvict(value = "vehicle", allEntries = true)
     public VehicleDTO updateVehicle(VehicleDTO vehicleDTO) {
         log.info("Updating vehicle: {}", vehicleDTO);
         VehicleEntity vehicleEntity = vehicleRepository.findById(vehicleDTO.getVehicleId()).orElseThrow(() -> new RuntimeException("Vehicle not found"));
@@ -61,7 +62,7 @@ public class VehicleServiceIMPL implements VehicleService {
     }
 
     @Override
-    @CacheEvict(value = "vehicle", key = "#vehicleId")
+    @CacheEvict(value = "vehicles", allEntries = true)
     public void deleteVehicle(String vehicleId) {
 
         log.info("Deleting vehicle with id: {}", vehicleId);
@@ -72,7 +73,7 @@ public class VehicleServiceIMPL implements VehicleService {
     }
 
     @Override
-    @Cacheable(value = "vehicles")
+   @Cacheable(value = "vehicles")
     public List<VehicleDTO> getAllVehicles() {
         log.info("Getting all vehicles");
         return globalMapper.vehicleEntityListToVehicleDTOList(vehicleRepository.findAll());
